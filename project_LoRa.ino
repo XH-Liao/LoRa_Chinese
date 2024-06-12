@@ -3,6 +3,17 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <Arduino.h>
+#include <U8g2lib.h>
+
+#ifdef U8X8_HAVE_HW_SPI
+#include <SPI.h>
+#endif
+#ifdef U8X8_HAVE_HW_I2C
+#include <Wire.h>
+#endif
+
+U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
 #define SCREEN_WIDTH 128 // OLED 寬度像素
 #define SCREEN_HEIGHT 64 // OLED 高度像素
@@ -57,6 +68,9 @@ void setup() {
   // 顯示Adafruit的LOGO，算是開機畫面
   display.display();
   delay(1000); // 停1秒
+
+  u8g2.begin();
+  u8g2.enableUTF8Print();  //啟用UTF8文字的功能  
 }
 
 void loop() {
@@ -89,16 +103,30 @@ void loop() {
 }
 
 void displayGoodsInfo(String goods_name, String goods_price) {
-  
+  /*
   display.clearDisplay();
   display.setTextSize(2);             // 設定文字大小
   display.setTextColor(SSD1306_WHITE);        // 1:OLED預設的顏色(這個會依該OLED的顏色來決定)
   display.setCursor(0, 0);             // 設定起始座標
   display.print(goods_name);        // 顯示商品名稱
-  display.setCursor(0, 30);             // 設定起始座標
+  display.setCursor(0, 30);             
   display.print("$");
   display.print(goods_price);        // 顯示商品價格
   display.display();                  // 要有這行才會把文字顯示出來
+  delay(1000);
+  */
+
+  u8g2.setFont(u8g2_font_unifont_t_chinese1); //使用我們做好的字型
+  u8g2.firstPage();
+  do {
+    //u8g2.setCursor(40, 14);
+    //u8g2.print("特價!");     //貨品狀態
+    u8g2.setCursor(0, 40);    // 設定起始座標
+    u8g2.print(goods_name);   // 顯示商品名稱
+    u8g2.setCursor(0, 60);    // 設定起始座標
+    u8g2.print("$");
+    u8g2.print(goods_price);  // 顯示商品價格
+  } while ( u8g2.nextPage() );
   delay(1000);
 }
 
